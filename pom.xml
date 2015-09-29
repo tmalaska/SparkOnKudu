@@ -1,0 +1,341 @@
+<?xml version="1.0"?>
+
+<!--
+
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation=
+           "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache</groupId>
+    <artifactId>apache</artifactId>
+    <version>14</version>
+  </parent>
+  <groupId>com.cloudera.kudu</groupId>
+  <artifactId>kudu-spark</artifactId>
+  <name>Kudu - Spark</name>
+  <packaging>jar</packaging>
+
+  <properties>
+    <spark.version>1.5.0-cdh5.5.0-SNAPSHOT</spark.version>
+    <scala.version>2.10.4</scala.version>
+      <kafka.version>0.8.2.0-kafka-1.4.0-SNAPSHOT</kafka.version>
+    <scala.binary.version>2.10</scala.binary.version>
+    <top.dir>${project.basedir}/..</top.dir>
+  </properties>
+
+    <build>
+        <testSourceDirectory>src/test/scala</testSourceDirectory>
+
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>scala-maven-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <configuration>
+                        <charset>UTF-8</charset>
+                        <scalaVersion>${scala.version}</scalaVersion>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>scala-compile-first</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>scala-test-compile</id>
+                            <phase>process-test-resources</phase>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.scalatest</groupId>
+                    <artifactId>scalatest-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <configuration>
+                        <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                        <junitxml>.</junitxml>
+                        <filereports>WDF TestSuite.txt</filereports>
+                        <parallel>false</parallel>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>test</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <skipTests>true</skipTests>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>integration-test</id>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <tagsToExclude>Integration-Test</tagsToExclude>
+                                <argLine>
+                                    -Xmx1536m -XX:MaxPermSize=512m -XX:ReservedCodeCacheSize=512m
+                                </argLine>
+                                <parallel>false</parallel>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>2.2</version>
+                    <configuration>
+                        <shadedArtifactAttached>false</shadedArtifactAttached>
+                        <outputFile>target/KuduSpark.jar</outputFile>
+                        <artifactSet>
+                            <includes>
+                                <include>*:*</include>
+                            </includes>
+                        </artifactSet>
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                                <transformers>
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        <resource>reference.conf</resource>
+                                    </transformer>
+                                </transformers>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+
+    </build>
+
+  <repositories>
+      <repository>
+          <id>cloudera-repo</id>
+          <name>Cloudera Repository</name>
+          <url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+      </repository>
+  </repositories>
+
+
+  <pluginRepositories>
+
+    <pluginRepository>
+      <id>repo1.maven.org</id>
+      <url>http://repo1.maven.org/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+
+    <pluginRepository>
+      <id>oss.sonatype.org</id>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+
+  </pluginRepositories>
+
+
+  <dependencies>
+      <!-- Force import of Spark's servlet API for unit tests -->
+      <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>javax.servlet-api</artifactId>
+          <version>3.0.1</version>
+          <scope>test</scope>
+      </dependency>
+
+      <!-- Mark Spark / Scala as provided -->
+      <dependency>
+          <groupId>org.scala-lang</groupId>
+          <artifactId>scala-library</artifactId>
+          <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-core_${scala.binary.version}</artifactId>
+          <version>${spark.version}</version>
+          <!--<scope>provided</scope>-->
+          <exclusions>
+              <exclusion>
+                  <!-- make sure wrong scala version is not pulled in -->
+                  <groupId>org.scala-lang</groupId>
+                  <artifactId>scala-library</artifactId>
+              </exclusion>
+              <exclusion>
+                  <!-- make sure wrong scala version is not pulled in -->
+                  <groupId>org.scala-lang</groupId>
+                  <artifactId>scalap</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-sql_${scala.binary.version}</artifactId>
+          <version>${spark.version}</version>
+          <!--<scope>provided</scope>-->
+      </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-mllib_${scala.binary.version}</artifactId>
+          <version>${spark.version}</version>
+          <!--<scope>provided</scope>-->
+      </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+          <version>${spark.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-streaming-kafka_${scala.binary.version}</artifactId>
+          <version>${spark.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+          <version>${spark.version}</version>
+          <type>test-jar</type>
+          <classifier>tests</classifier>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka-clients</artifactId>
+          <version>${kafka.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.12</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.scalatest</groupId>
+          <artifactId>scalatest_${scala.binary.version}</artifactId>
+          <version>2.2.1</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.kududb</groupId>
+          <artifactId>kudu-client</artifactId>
+          <version>0.1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+          <groupId>org.kududb</groupId>
+          <artifactId>kudu-mapreduce</artifactId>
+          <version>0.1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-client</artifactId>
+          <version>2.6.0-mr1-cdh5.4.5</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>log4j</groupId>
+                  <artifactId>log4j</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>javax.servlet</groupId>
+                  <artifactId>servlet-api</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>javax.servlet.jsp</groupId>
+                  <artifactId>jsp-api</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>org.jruby</groupId>
+                  <artifactId>jruby-complete</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>org.jboss.netty</groupId>
+                  <artifactId>netty</artifactId>
+              </exclusion>
+              <exclusion>
+                  <groupId>io.netty</groupId>
+                  <artifactId>netty</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+
+  </dependencies>
+
+
+
+</project>

@@ -1,0 +1,33 @@
+
+ssh root@mriggs-strata-1.vpc.cloudera.com
+
+scp target/KuduSpark.jar root@mriggs-strata-1.vpc.cloudera.com:./
+
+--Setting up Kafka
+kafka-topics --zookeeper mriggs-strata-1.vpc.cloudera.com:2181 --create --topic gamer --partitions 1 --replication-factor 1
+kafka-topics --zookeeper mriggs-strata-1.vpc.cloudera.com:2181 --list
+kafka-console-producer --broker-list mriggs-strata-1.vpc.cloudera.com:9092 --topic test
+kafka-cocsole-consumer --zookeeper mriggs-strata-1.vpc.cloudera.com:2181 --topic gamer --from-beginning
+
+vi .bash_profile
+export PATH=/usr/java/jdk1.7.0_67-cloudera/bin/:$PATH
+export JAVA_HOME=/usr/java/jdk1.7.0_67-cloudera/
+
+--Populating Kafka
+java -cp KuduSpark.jar org.kududb.spark.demo.gamer.KafkaProducerGenerator mriggs-strata-1.vpc.cloudera.com:9092 gamer 10000 300 1000
+
+--create Table
+java -cp KuduSpark.jar org.kududb.spark.demo.gamer.CreateKuduTable  mriggs-strata-1.vpc.cloudera.com gamer
+
+--Run Spark Streaming
+spark-submit \
+--master yarn --deploy-mode client \
+--executor-memory 2G \
+--num-executors 2 \
+--jars kudu-mapreduce-0.1.0-20150903.033037-21-jar-with-dependencies.jar \
+--class org.kududb.spark.demo.gamer.GamerAggergatesSparkStreaming KuduSpark.jar \
+mriggs-strata-1.vpc.cloudera.com:9092 gamer mriggs-strata-1.vpc.cloudera.com gamer C
+
+
+
+

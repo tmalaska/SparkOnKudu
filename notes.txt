@@ -1,0 +1,11 @@
+1. Add impala-kudu parcel
+2. Search for the *Impala Service Environment Advanced Configuration Snippet (Safety 85
+  Valve)* configuration item. Add the following to the text field and save your changes: `
+IMPALA_NEXT=1`
+3. Talk to Martin Grund
+
+scp target/KuduSpark.jar root@mriggs-strata-1.vpc.cloudera.com:./
+
+scp kudu-mapreduce-0.1.0-20150903.033037-21-jar-with-dependencies.jar root@mriggs-strata-1.vpc.cloudera.com:./
+
+spark-shell --jars kudu-mapreduce-0.1.0-20150903.033037-21-jar-with-dependencies.jar,KuduSpark.jar --class org.kududb.spark.demo.SimpleGroupByExample --executor-cores 2 --num-executors 3 --executor-memory 2g --master yarn --deploy-mode client mriggs-strata-1.vpc.cloudera.com foo y
