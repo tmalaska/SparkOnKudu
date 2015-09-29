@@ -58,7 +58,7 @@ spark-submit \
 --num-executors 2 \
 --jars kudu-mapreduce-0.1.0-20150903.033037-21-jar-with-dependencies.jar \
 --class org.kududb.spark.demo.gamer.GamerAggergatesSparkStreaming KuduSpark.jar \
-mriggs-strata-1.vpc.cloudera.com:9092 gamer mriggs-strata-1.vpc.cloudera.com gamer C
+BrokerNode:9092 gamer KuduMaster gamer C
 
 
 
