@@ -172,7 +172,7 @@ class KuduRelation (val tableName:String,
 
 
     val columnSchema = getKuduSchemaColumnMap.getOrElse(columnName, null)
-    val columnIndex = row.getColumnProjection.getColumnIndex(columnSchema)
+    val columnIndex = row.getColumnProjection.getColumnIndex(columnName)
     val columnType = columnSchema.getType
 
     if (columnType == Type.BINARY) row.getBinary(columnIndex)
