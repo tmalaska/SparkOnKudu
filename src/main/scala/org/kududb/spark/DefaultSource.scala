@@ -169,21 +169,19 @@ class KuduRelation (val tableName:String,
 
   def getKuduValue(columnName:String, row:RowResult): Any = {
 
-
-
     val columnSchema = getKuduSchemaColumnMap.getOrElse(columnName, null)
-    val columnIndex = row.getColumnProjection.getColumnIndex(columnSchema)
-    val columnType = columnSchema.getType
 
-    if (columnType == Type.BINARY) row.getBinary(columnIndex)
-    else if (columnType == Type.BOOL) row.getBoolean(columnIndex)
-    else if (columnType == Type.DOUBLE) row.getDouble(columnIndex)
-    else if (columnType == Type.FLOAT) row.getFloat(columnIndex)
-    else if (columnType == Type.INT16) row.getShort(columnIndex)
-    else if (columnType == Type.INT32) row.getInt(columnIndex)
-    else if (columnType == Type.INT64) row.getLong(columnIndex)
-    else if (columnType == Type.INT8) row.getByte(columnIndex)
-    else if (columnType == Type.TIMESTAMP) row.getLong(columnIndex)
-    else if (columnType == Type.STRING) row.getString(columnIndex)
+    val columnType = row.getColumnType(columnName)
+
+    if (columnType == Type.BINARY) row.getBinary(columnName)
+    else if (columnType == Type.BOOL) row.getBoolean(columnName)
+    else if (columnType == Type.DOUBLE) row.getDouble(columnName)
+    else if (columnType == Type.FLOAT) row.getFloat(columnName)
+    else if (columnType == Type.INT16) row.getShort(columnName)
+    else if (columnType == Type.INT32) row.getInt(columnName)
+    else if (columnType == Type.INT64) row.getLong(columnName)
+    else if (columnType == Type.INT8) row.getByte(columnName)
+    else if (columnType == Type.TIMESTAMP) row.getLong(columnName)
+    else if (columnType == Type.STRING) row.getString(columnName)
   }
 }

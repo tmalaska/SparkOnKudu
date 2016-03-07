@@ -4,9 +4,6 @@ import java.util.Random
 
 import org.kududb.client.{PartialRow, KuduClient}
 
-/**
- * Created by ted.malaska on 9/3/15.
- */
 object AddSingleRecord {
   def main(args:Array[String]): Unit = {
     if (args.length == 0) {

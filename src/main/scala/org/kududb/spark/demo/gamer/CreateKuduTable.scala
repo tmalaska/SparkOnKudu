@@ -4,7 +4,7 @@ import java.util
 
 import org.kududb.{Schema, Type, ColumnSchema}
 import org.kududb.ColumnSchema.ColumnSchemaBuilder
-import org.kududb.client.{PartialRow, CreateTableBuilder, KuduClient}
+import org.kududb.client.{CreateTableOptions, PartialRow, KuduClient}
 
 object CreateKuduTable {
   def main(args:Array[String]): Unit = {
@@ -35,31 +35,31 @@ object CreateKuduTable {
       println("Deleting Table")
       kuduClient.deleteTable(tableName)
     }
-    val createTableBuilder = new CreateTableBuilder
+    val builder = new CreateTableOptions();
     val splitRow = schema.newPartialRow()
     splitRow.addString("gamer_id", "")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "1")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "2")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "3")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "4")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "5")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "6")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "7")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "8")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
     splitRow.addString("gamer_id", "9")
-    createTableBuilder.addSplitRow(splitRow)
+    builder.addSplitRow(splitRow)
 
     println("Creating Table")
-    kuduClient.createTable(tableName, schema, createTableBuilder)
+    kuduClient.createTable(tableName, schema, builder)
     println("Created Table")
     kuduClient.shutdown()
   }

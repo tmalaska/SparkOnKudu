@@ -2,7 +2,7 @@ package org.kududb.spark.demo.gamer
 
 import java.util.{Random, Properties}
 
-import org.apache.kafka.clients.producer.{ProducerConfig, KafkaProducer, ProducerRecord}
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
 
 object KafkaProducerGenerator {

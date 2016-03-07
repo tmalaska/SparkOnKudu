@@ -1,7 +1,5 @@
 package org.kududb.spark.demo.gamer
 
-
-
 class GamerEvent(var gamerId:String = "",
                  var lastTimePlayed:Long = 0,
                  var gamesPlayed:Int = 1,

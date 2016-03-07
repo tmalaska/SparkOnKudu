@@ -2,9 +2,6 @@ package org.kududb.spark.demo.basic
 
 import org.kududb.client.KuduClient
 
-/**
- * Created by ted.malaska on 9/3/15.
- */
 object ScanTable {
   def main(args:Array[String]): Unit = {
     if (args.length == 0) {
