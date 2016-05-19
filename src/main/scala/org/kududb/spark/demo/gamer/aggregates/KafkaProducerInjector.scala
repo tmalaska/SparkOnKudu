@@ -1,16 +1,12 @@
-package org.kududb.spark.demo.gamer
+package org.kududb.spark.demo.gamer.aggregates
 
-import java.util.{Random, Properties}
+import java.util.Properties
 
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
 
-object KafkaProducerGenerator {
+object KafkaProducerInjector {
 
-  val random = new Random()
-  val averagePlayerPercentage = 40
-  val advancedPlayerPercentage = 80
-  val superStarPlayerPercentage = 100
 
   def main(args:Array[String]): Unit = {
     if (args.length == 0) {
@@ -28,7 +24,7 @@ object KafkaProducerGenerator {
 
     for (i <- 0 until numOfRecords) {
 
-      val gamerRecord = makeNewGamerRecord(numOfGamers)
+      val gamerRecord = GamerDataGenerator.makeNewGamerRecord(numOfGamers)
 
       val message = new ProducerRecord[String, String](topic, gamerRecord.gamerId.toString,  gamerRecord.toString())
 
@@ -65,42 +61,5 @@ object KafkaProducerGenerator {
     new KafkaProducer[String, String](kafkaProps)
   }
 
-  def makeNewGamerRecord(numOfGamers:Int): GamerEvent = {
-    val playerSelection = random.nextInt(100)
-    if (playerSelection < averagePlayerPercentage) {
 
-      val gamerId = random.nextInt(numOfGamers/100) * 100 + playerSelection
-
-      new GamerEvent(gamerId.toString,
-        System.currentTimeMillis(),
-        1,
-        if (random.nextInt(10) > 7) 1 else 0,
-        random.nextInt(10),
-        random.nextInt(20),
-        random.nextInt(1000),
-        random.nextInt(2000))
-    } else if (playerSelection < advancedPlayerPercentage) {
-      val gamerId = random.nextInt(numOfGamers/100) * 100 + playerSelection
-
-      new GamerEvent(gamerId.toString,
-        System.currentTimeMillis(),
-        1,
-        if (random.nextInt(10) > 5) 1 else 0,
-        random.nextInt(20),
-        random.nextInt(18),
-        random.nextInt(2000),
-        random.nextInt(2000))
-    } else {
-      val gamerId = random.nextInt(numOfGamers/100) * 100 + playerSelection
-
-      new GamerEvent(gamerId.toString,
-        System.currentTimeMillis(),
-        1,
-        if (random.nextInt(10) > 3) 1 else 0,
-        random.nextInt(20),
-        random.nextInt(10),
-        random.nextInt(4000),
-        random.nextInt(1500))
-    }
-  }
 }

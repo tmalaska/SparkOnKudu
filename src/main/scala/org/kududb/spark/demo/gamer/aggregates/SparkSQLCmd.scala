@@ -1,7 +1,7 @@
-package org.kududb.spark.demo.gamer
+package org.kududb.spark.demo.gamer.aggregates
 
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 object SparkSQLCmd {
   def main(args:Array[String]): Unit = {

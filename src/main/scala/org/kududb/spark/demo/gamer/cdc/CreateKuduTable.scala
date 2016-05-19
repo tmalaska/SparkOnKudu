@@ -1,12 +1,13 @@
-package org.kududb.spark.demo.gamer
+package org.kududb.spark.demo.gamer.cdc
 
 import java.util
+import java.util.ArrayList
 
 import org.kududb.{Schema, Type, ColumnSchema}
 import org.kududb.ColumnSchema.ColumnSchemaBuilder
-import org.kududb.client.{CreateTableOptions, PartialRow, KuduClient}
+import org.kududb.client.{CreateTableOptions, KuduClient}
 
-object CreateKuduTable {
+object CreateGamerCDCKuduTable {
   def main(args:Array[String]): Unit = {
     if (args.length == 0) {
       println("{kuduMaster} {tableName}")
@@ -15,11 +16,14 @@ object CreateKuduTable {
 
     val kuduMaster = args(0)
     val tableName = args(1)
+    val numberOfBuckets = args(2).toInt
 
     val kuduClient = new KuduClient.KuduClientBuilder(kuduMaster).build()
     val columnList = new util.ArrayList[ColumnSchema]()
 
     columnList.add(new ColumnSchemaBuilder("gamer_id", Type.STRING).key(true).build())
+    columnList.add(new ColumnSchemaBuilder("eff_to", Type.STRING).key(true).build())
+    columnList.add(new ColumnSchemaBuilder("eff_from", Type.STRING).key(false).build())
     columnList.add(new ColumnSchemaBuilder("last_time_played", Type.INT64).key(false).build())
     columnList.add(new ColumnSchemaBuilder("games_played", Type.INT32).key(false).build())
     columnList.add(new ColumnSchemaBuilder("games_won", Type.INT32).key(false).build())
@@ -35,28 +39,13 @@ object CreateKuduTable {
       println("Deleting Table")
       kuduClient.deleteTable(tableName)
     }
-    val builder = new CreateTableOptions();
-    val splitRow = schema.newPartialRow()
-    splitRow.addString("gamer_id", "")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "1")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "2")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "3")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "4")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "5")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "6")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "7")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "8")
-    builder.addSplitRow(splitRow)
-    splitRow.addString("gamer_id", "9")
-    builder.addSplitRow(splitRow)
+
+    val builder = new CreateTableOptions()
+
+    val hashColumnList = new ArrayList[String]
+    hashColumnList.add("gamer_id")
+
+    builder.addHashPartitions(hashColumnList, numberOfBuckets)
 
     println("Creating Table")
     kuduClient.createTable(tableName, schema, builder)

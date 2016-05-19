@@ -1,10 +1,10 @@
-package org.kududb.spark.demo.gamer
+package org.kududb.spark.demo.gamer.aggregates
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.mllib.clustering.KMeans
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 object GamerSparkSQLExample {
   def main(args:Array[String]): Unit = {
@@ -54,7 +54,7 @@ object GamerSparkSQLExample {
 
     println("Query 3: SELECT * FROM gamer order_by last_time_played desc limit 100")
     val startTimeQ3 = System.currentTimeMillis()
-    sqlContext.sql("SELECT * FROM gamer order_by last_time_played desc limit 100").take(100).foreach(r => {
+    sqlContext.sql("SELECT * FROM gamer order by last_time_played desc limit 100").take(100).foreach(r => {
       println(" - (" + r + ")")
     })
     println("Finish Query 3: " + (System.currentTimeMillis() - startTimeQ3))
@@ -74,9 +74,14 @@ object GamerSparkSQLExample {
       val array = Array(r.getInt(1).toDouble, r.getInt(2).toDouble, r.getInt(3).toDouble)
       Vectors.dense(array)
     })
-    val clusters = KMeans.train(parsedData, 3, 5)
-    clusters.clusterCenters.foreach(v => println(" Vector Center:" + v))
 
+    val dataCount = parsedData.count()
+
+    if (dataCount > 0) {
+      val clusters = KMeans.train(parsedData, 3, 5)
+      clusters.clusterCenters.foreach(v => println(" Vector Center:" + v))
+
+    }
     //TODO add Mllib here
     println("Finish Query 5 + MLLIB: " + (System.currentTimeMillis() - startTimeQ5))
 

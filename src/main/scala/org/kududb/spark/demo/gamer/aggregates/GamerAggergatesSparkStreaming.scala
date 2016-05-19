@@ -1,19 +1,18 @@
-package org.kududb.spark.demo.gamer
+package org.kududb.spark.demo.gamer.aggregates
 
 import kafka.serializer.StringDecoder
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.{HashPartitioner, SparkContext, SparkConf}
 import org.apache.spark.streaming.kafka.KafkaUtils
-import org.apache.spark.streaming.{StreamingContext, Seconds}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}
 import org.kududb.client.Operation
 import org.kududb.client.SessionConfiguration.FlushMode
 import org.kududb.spark.KuduContext
 import org.kududb.spark.KuduDStreamFunctions.GenericKuduDStreamFunctions
+import org.kududb.spark.demo.gamer.{GamerEvent, GamerEventBuilder}
 
 object GamerAggergatesSparkStreaming {
-
-  //Logger.getRootLogger.setLevel(Level.ERROR)
 
   def main(args:Array[String]): Unit = {
     if (args.length == 0) {
